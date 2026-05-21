@@ -12,10 +12,10 @@ The signature view: "Zach Bryan has 20 tracked songs. 12 are on the global TikTo
 
 | Layer | Choice |
 |---|---|
-| Frontend | Next.js 14+ (App Router) |
-| UI | shadcn/ui + Tailwind |
+| Frontend | Next.js 16 (App Router, Turbopack, React Compiler) |
+| UI | Tailwind v4 (CSS-first) + shadcn-pattern primitives |
 | Charts | Recharts |
-| Database | Supabase (Postgres) |
+| Database / Auth | Supabase (Postgres + Auth via `@supabase/ssr`) |
 | Cron | Vercel Cron → Next.js Route Handler |
 | Hosting | Vercel |
 | External API | Chartex REST |
@@ -24,31 +24,43 @@ All Chartex calls server-side only. Never expose `SUPABASE_SERVICE_ROLE_KEY` or 
 
 ---
 
-## Repo layout (target)
+## Repo layout
 
 ```
 app/
-  (auth)/login/
-  api/cron/daily-snapshot/route.ts
-  artists/
-    page.tsx                  # /
-    new/page.tsx
-    [slug]/page.tsx
+  (auth)/actions.ts           # signInWithEmail, logout server actions
+  api/cron/daily-snapshot/    # cron route (TODO)
+  auth/callback/route.ts      # Supabase OAuth code → session exchange
+  chart/page.tsx              # global chart browser
+  dashboard/page.tsx
+  login/page.tsx              # magic-link form
+  projects/
+    page.tsx                  # list
+    new/page.tsx              # create
+    [slug]/page.tsx           # detail (signature view)
     [slug]/edit/page.tsx
-  chart/page.tsx
-  admin/jobs/page.tsx
-  middleware.ts               # password-cookie gate
+  globals.css                 # Tailwind v4 CSS-first (@theme)
+  layout.tsx
+  page.tsx                    # /  home
+proxy.ts                      # Next 16 proxy (was middleware) — auth gate
 lib/
-  chartex.ts                  # typed Chartex client (~200 LOC)
+  chartex.ts                  # typed Chartex client (TODO)
   supabase/
-    server.ts
-    client.ts
-  db/                         # query helpers
+    client.ts                 # browser client
+    server.ts                 # server + service-role
+    middleware.ts             # session refresh helper
+  db/projects.ts              # query helpers
+components/
+  site-nav.tsx
+  ui/                         # button, card, input, label, badge
 supabase/
-  migrations/                 # schema, all tables incl. chart_rankings
-components/ui/                # shadcn primitives
-vercel.json                   # cron config
+  migrations/0001_init.sql    # all tables + project_previews view + RLS
+vercel.json                   # cron schedule
 ```
+
+**Naming:** the spec uses `artists` + `songs`; this repo uses **projects** + **sounds**. One project ≈ one artist, but the schema is artist-agnostic so a project can also be a campaign.
+
+**Auth:** Supabase Auth (magic link). Every `projects` row is scoped to `auth.users.id`; children inherit via RLS. The cron uses the service-role key and bypasses RLS.
 
 ---
 

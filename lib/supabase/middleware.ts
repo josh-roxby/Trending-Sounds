@@ -2,17 +2,25 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseConfigured } from "@/lib/supabase/server";
 
-export async function updateSession(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const isPublic =
+// Public routes — no auth required. Everything else falls through to the
+// signed-in gate below.
+function isPublicRoute(pathname: string) {
+  return (
+    pathname === "/" ||
     pathname === "/login" ||
     pathname.startsWith("/auth") ||
     pathname.startsWith("/api/cron") ||
     pathname === "/favicon.ico" ||
-    pathname === "/icon.svg";
+    pathname === "/icon.svg"
+  );
+}
 
-  // If Supabase isn't configured yet, send everything to /login (which renders a
-  // setup banner) so the deploy is visitable before env vars land.
+export async function updateSession(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isPublic = isPublicRoute(pathname);
+
+  // No Supabase yet → public routes render, everything else bounces to /login
+  // (which shows a setup banner so the deploy is browsable before env vars land).
   if (!supabaseConfigured()) {
     if (isPublic) return NextResponse.next({ request });
     const url = request.nextUrl.clone();
@@ -51,7 +59,7 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    if (pathname !== "/") url.searchParams.set("next", pathname);
+    url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 

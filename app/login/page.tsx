@@ -25,11 +25,16 @@ export default async function LoginPage({
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-6 py-10">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Trending Sounds</h1>
+    <div className="mx-auto flex max-w-md flex-col gap-6 py-16">
+      <div className="flex flex-col gap-2 text-center">
+        <span className="font-mono text-xs uppercase tracking-widest text-[var(--color-muted-foreground)]">
+          trending-sounds
+        </span>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <span className="text-gradient">Sign in</span>
+        </h1>
         <p className="text-sm text-[var(--color-muted-foreground)]">
-          Sign in to view your roster and the global TikTok 7-day chart.
+          Magic link to your inbox. No password.
         </p>
       </div>
 

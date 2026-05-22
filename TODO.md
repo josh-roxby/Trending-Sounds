@@ -78,7 +78,7 @@ Legend: `[ ]` open · `[x]` done · `[~]` in progress
 
 ## D. Daily Cron (`/api/cron/daily-snapshot`)
 
-- [ ] **D-1** Route scaffolding (bearer auth via `CRON_SECRET`, opens `job_runs` row)
+- [~] **D-1** Route scaffolding (bearer auth via `CRON_SECRET`, opens `job_runs` row) — *stub returns 200 with auth; `job_runs` insert + phases TODO*
 - [ ] **D-2** Phase 1 — Chart pull (`['', 'US', 'GB', 'IE']` × pages 1..10, store `WW` for empty)
 - [ ] **D-3** Phase 2 — Per-sound snapshots
 - [ ] **D-4** Phase 3 — Per-account snapshots

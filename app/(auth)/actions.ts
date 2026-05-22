@@ -1,13 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, supabaseConfigured } from "@/lib/supabase/server";
 
 function siteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
 export async function signInWithEmail(formData: FormData) {
+  if (!supabaseConfigured()) redirect("/login?error=not_configured");
+
   const email = (formData.get("email") as string | null)?.trim();
   if (!email) return;
 
@@ -23,6 +25,7 @@ export async function signInWithEmail(formData: FormData) {
 }
 
 export async function logout() {
+  if (!supabaseConfigured()) redirect("/login");
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
